@@ -1,0 +1,457 @@
+openapi: "3.0.0"
+info:
+  title: Warpdrive API
+  version: "1.0.0"
+  description: API for managing Warpdrive sessions and authentication
+servers:
+  - url: https://api.warpdrive.sh
+    description: Production server
+  #- url: https://staging.api.warpdrive.sh - only once we actually have users
+  #  description: Staging server
+  - url: http://localhost:8000
+    description: Local development server
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+paths:
+  /token:
+    post:
+      summary: Exchange API key for JWT token
+      description: Exchange an API key for a JWT token. Intended to be called initially to obtain a token for subsequent requests, as X-API-Key triggers a db lookup, which is expensive.
+      security:
+        - ApiKeyAuth: []
+      responses:
+        "200":
+          description: Successfully obtained JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token for authentication
+                required:
+                  - token
+        "401":
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sessions:
+    get:
+      summary: List all running sessions
+      description: List all running sessions for the current user
+      responses:
+        "200":
+          description: Successfully retrieved sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Session"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: Create a new session
+      description: Create a new session with specified configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                machine_id:
+                  type: string
+                  description: Machine config ID
+                region:
+                  type: string
+                  description: Region config ID
+                no_join:
+                  type: boolean
+                  description: Forbids other terminals from joining the session
+                pub_key:
+                  type: string
+                  description: Public key for SSH access
+              required:
+                - machine_id
+                - region
+                - pub_key
+      responses:
+        "201":
+          description: Session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sessions/{session_id}/approve:
+    post:
+      summary: Approve a session for joining
+      description: Approve a session for joining by adding the specified public key
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pub_key:
+                  type: string
+                  description: Public key to add to the session
+                user:
+                  type: string
+                  description: VM user to create
+                client_ip:
+                  type: string
+                  description: IP address of the client requesting approval
+                joiner_uuid:
+                  type: string
+                  description: UUID tied to the joiner SSE subject
+              required:
+                - pub_key
+                - user
+                - client_ip
+                - joiner_uuid
+      responses:
+        "200":
+          description: Session join request approved successfully
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sessions/{session_id}/reject:
+    post:
+      summary: Reject a session for joining
+      description: Reject a session join request
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                joiner_uuid:
+                  type: string
+                  description: UUID tied to the joiner SSE subject
+              required:
+                - joiner_uuid
+      responses:
+        "200":
+          description: Session join request rejected successfully
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sse/session/{session_id}/owner:
+    get:
+      summary: Subscribe to session owner events
+      description: Subscribe to Server-Sent Events for session owner, including join requests
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the session
+      responses:
+        "200":
+          description: Successfully subscribed to session owner events
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-Sent Events stream
+              examples:
+                join_requested:
+                  summary: Join request event
+                  value: |
+                    event: join_requested
+                    data: {"alias": "Session Alias", "subject_uuid": "Joiner SSE Subject UUID", "region": "Joiner Region", "pub_key": "Joiner Public Key", "user": "Joiner Proposed VM User", "client_ip": "Joiner Client IP"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /sse/session/alias/{alias}/guest:
+    post:
+      summary: Request to join a session as a guest
+      description: Request to join a session as a guest and subscribe to response events
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Session alias
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pub_key:
+                  type: string
+                  description: Public key to add to the session
+                user:
+                  type: string
+                  description: VM user to create
+              required:
+                - pub_key
+                - user
+      responses:
+        "200":
+          description: Successfully requested to join session and subscribed to events
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-Sent Events stream
+              examples:
+                join_approved:
+                  summary: Join request approved
+                  value: |
+                    event: join_request_outcome
+                    data: {"status": "approved"}
+                join_denied:
+                  summary: Join request denied
+                  value: |
+                    event: join_request_outcome
+                    data: {"status": "denied", "reason": "owner_denied_join"}
+                user_already_in_session:
+                  summary: User already in session
+                  value: |
+                    event: join_request_outcome
+                    data: {"status": "denied", "reason": "user_already_in_session"}
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /token endpoint
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+  schemas:
+    Session:
+      type: object
+      properties:
+        session_id:
+          type: string
+          description: Unique identifier for the session
+        alias:
+          type: string
+          description: Alias for the session
+        region:
+          type: string
+          description: Container hosting region
+        no_join:
+          type: boolean
+          description: Whether other terminals can join
+        machine_id:
+          type: string
+          description: Machine configuration ID
+        started_at:
+          type: string
+          format: date-time
+          description: Timestamp of session creation
+      required:
+        - session_id
+        - alias
+        - region
+        - machine_id
+        - started_at
+
+    JoinRequestEvent:
+      type: object
+      properties:
+        alias:
+          type: string
+          description: Session alias
+        subject_uuid:
+          type: string
+          description: Joiner SSE Subject UUID
+        region:
+          type: string
+          description: Joiner region
+        pub_key:
+          type: string
+          description: Joiner public key
+        user:
+          type: string
+          description: Joiner proposed VM user
+        client_ip:
+          type: string
+          description: Joiner client IP
+      required:
+        - alias
+        - subject_uuid
+        - region
+        - pub_key
+        - user
+        - client_ip
+
+    JoinOutcomeEvent:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [approved, denied]
+          description: Status of the join request
+        reason:
+          type: string
+          enum: [user_already_in_session, owner_denied_join, undefined]
+          description: Reason for denial (only present when status is denied)
+      required:
+        - status
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+      required:
+        - error
