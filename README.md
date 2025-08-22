@@ -9,7 +9,7 @@ All endpoints require either:
 
 ### /token
 
-- **POST**: Exchange an API key for a JWT token. Intended to be called initially to obtain a token for subsequent requests, as X-API-Key triggers a db lookup, which is expensive.
+- **POST**: Exchange an API key for a JWT token. Intended to be called initially to obtain a token for subsequent requests
 
 Response:
 
