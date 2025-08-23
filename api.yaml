@@ -358,6 +358,210 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /search/machines:
+    get:
+      summary: Search for available machine types
+      description: Search for available machine types with optional filters
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional machine name filter
+        - name: region
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional region filter
+        - name: cloud_provider
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional cloud provider filter
+        - name: vcpus
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Optional CPU count filter
+        - name: memory_mib
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Optional memory size filter (in MiB)
+        - name: gpu_count
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Optional GPU count filter
+        - name: gpu_model
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional GPU model filter
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+          description: Maximum results to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Results offset for pagination
+      responses:
+        "200":
+          description: Successfully retrieved machine search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Machine"
+                required:
+                  - results
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /search/images:
+    get:
+      summary: Search for available images
+      description: Search for available images with optional filters
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional image name filter
+        - name: cloud_provider
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional cloud provider filter
+        - name: os
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Optional operating system filter
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+          description: Maximum results to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Results offset for pagination
+      responses:
+        "200":
+          description: Successfully retrieved image search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Image"
+                required:
+                  - results
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /search/machines/featured:
+    get:
+      summary: Get featured machine types
+      description: Get a list of featured machine types
+      responses:
+        "200":
+          description: Successfully retrieved featured machines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Machine"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /search/images/featured:
+    get:
+      summary: Get featured images
+      description: Get a list of featured images
+      responses:
+        "200":
+          description: Successfully retrieved featured images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Image"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     BearerAuth:
@@ -443,6 +647,79 @@ components:
           description: Reason for denial (only present when status is denied)
       required:
         - status
+
+    Machine:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Machine ID
+        name:
+          type: string
+          description: Machine name
+        description:
+          type: string
+          description: Machine description
+        href:
+          type: string
+          description: Machine reference URL
+        cloud:
+          type: string
+          description: Cloud provider
+        not_in_regions:
+          type: array
+          items:
+            type: string
+          description: Regions where machine is not available
+        vcpus:
+          type: integer
+          description: Number of virtual CPUs
+        memory_mib:
+          type: integer
+          description: Memory size in MiB
+        gpu_count:
+          type: integer
+          description: Number of GPUs
+        gpu_model:
+          type: string
+          description: GPU model
+      required:
+        - id
+        - name
+        - description
+        - href
+        - cloud
+        - vcpus
+        - memory_mib
+
+    Image:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Image ID
+        name:
+          type: string
+          description: Image name
+        description:
+          type: string
+          description: Image description
+        os:
+          type: string
+          description: Operating system
+        href:
+          type: string
+          description: Image reference URL
+        cloud:
+          type: string
+          description: Cloud provider
+      required:
+        - id
+        - name
+        - description
+        - os
+        - href
+        - cloud
 
     Error:
       type: object

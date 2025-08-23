@@ -9,7 +9,7 @@ All endpoints require either:
 
 ### /token
 
-- **POST**: Exchange an API key for a JWT token. Intended to be called initially to obtain a token for subsequent requests
+- **POST**: Exchange an API key for a JWT token.
 
 Response:
 
@@ -95,3 +95,55 @@ SSE events for the session guest, including:
     }
   }
   ```
+
+### `/search/machines`
+
+- **GET**: Search for available machine types
+
+Request:
+
+- `name`: Optional machine name filter
+- `region`: Optional region filter
+- `cloud_provider`: Optional cloud provider filter
+- `vcpus`: Optional CPU count filter
+- `memory_mib`: Optional memory size filter (in MiB)
+- `gpu_count`: Optional GPU count filter
+- `gpu_model`: Optional GPU model filter
+- `limit`: Maximum results to return (default: 100)
+- `offset`: Results offset for pagination (default: 0)
+
+Response:
+
+- `results`: Array of machine objects with fields: `id`, `name`, `description`, `href`, `cloud`, `not_in_regions`, `vcpus`, `memory_mib`, `gpu_count`, `gpu_model`
+
+### `/search/images`
+
+- **GET**: Search for available images
+
+Request:
+
+- `name`: Optional image name filter
+- `cloud_provider`: Optional cloud provider filter
+- `os`: Optional operating system filter
+- `limit`: Maximum results to return (default: 100)
+- `offset`: Results offset for pagination (default: 0)
+
+Response:
+
+- `results`: Array of image objects with fields: `id`, `name`, `description`, `os`, `href`, `cloud`
+
+### `/search/machines/featured`
+
+- **GET**: Get featured machine types
+
+Response:
+
+- Array of featured machine objects with fields: `id`, `name`, `description`, `href`, `cloud`, `not_in_regions`, `vcpus`, `memory_mib`, `gpu_count`, `gpu_model`
+
+### `/search/images/featured`
+
+- **GET**: Get featured images
+
+Response:
+
+- Array of featured image objects with fields: `id`, `name`, `description`, `os`, `href`, `cloud`
