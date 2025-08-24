@@ -18,6 +18,15 @@ Response:
 ### `/sessions`
 
 - **GET**: List all running sessions for the current user
+  Request:
+- `limit`: Maximum results to return (default: 100)
+- `offset`: Results offset for pagination (default: 0)
+- `statuses`: Comma-separated list of session statuses to filter by (default: all)
+
+Response:
+
+- Array of SessionDesc objects with fields: `session_id`, `alias`, `region`, `no_join`, `machine_id`, `image_id`, `image_name`, `started_at`, `status`
+
 - **POST**: Create a new session.
 
 Request:
@@ -35,6 +44,12 @@ Response:
 - `no_join`: Whether other terminals can join
 - `machine_id`: Machine configuration ID
 - `started_at`: Timestamp of session creation
+
+### `/sessions/{session_id}/guests`
+
+- **GET**: List all guests in a session.
+  Response:
+- Array of GuestDesc objects with fields: `user_id`, `joined_at`
 
 ### `/sessions/{session_id}/approve`
 
@@ -54,6 +69,15 @@ Request:
 Request:
 
 - `joiner_uuid`: UUID tied to the joiner SSE subject
+
+### `/user/guest_sessions`
+
+- **GET**: List all sessions the current user has joined as a guest
+  Request:
+- `limit`: Maximum results to return (default: 100)
+- `offset`: Results offset for pagination (default: 0)
+  Response:
+- Array of GuestSessionDesc objects with fields: `joined_at`, `session` (SessionDesc object)
 
 ### `/sse/session/{session_id}/owner`
 

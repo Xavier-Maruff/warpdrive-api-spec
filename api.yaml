@@ -50,6 +50,27 @@ paths:
     get:
       summary: List all running sessions
       description: List all running sessions for the current user
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+          description: Maximum results to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Results offset for pagination
+        - name: statuses
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Comma-separated list of session statuses to filter by
       responses:
         "200":
           description: Successfully retrieved sessions
@@ -58,7 +79,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Session"
+                  $ref: "#/components/schemas/SessionDesc"
         "401":
           description: Unauthorized
           content:
@@ -238,6 +259,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /sessions/{session_id}/guests:
+    get:
+      summary: List all guests in a session
+      description: List all guests in a session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the session
+      responses:
+        "200":
+          description: Successfully retrieved session guests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GuestDesc"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /sse/session/{session_id}/owner:
     get:
       summary: Subscribe to session owner events
@@ -347,6 +407,47 @@ paths:
                 $ref: "#/components/schemas/Error"
         "404":
           description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /user/guest_sessions:
+    get:
+      summary: List all sessions the current user has joined as a guest
+      description: List all sessions the current user has joined as a guest
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 100
+          description: Maximum results to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Results offset for pagination
+      responses:
+        "200":
+          description: Successfully retrieved guest sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GuestSessionDesc"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -604,6 +705,73 @@ components:
         - region
         - machine_id
         - started_at
+    SessionDesc:
+      type: object
+      properties:
+        session_id:
+          type: string
+          description: Unique identifier for the session
+        alias:
+          type: string
+          description: Alias for the session
+        region:
+          type: string
+          description: Container hosting region
+        no_join:
+          type: boolean
+          description: Whether other terminals can join
+        machine_id:
+          type: string
+          description: Machine configuration ID
+        image_id:
+          type: string
+          description: Image configuration ID
+        image_name:
+          type: string
+          description: Name of the image
+        started_at:
+          type: string
+          format: date-time
+          description: Timestamp of session creation
+        status:
+          type: string
+          description: Current status of the session
+      required:
+        - session_id
+        - alias
+        - region
+        - machine_id
+        - image_id
+        - image_name
+        - started_at
+        - status
+
+    GuestDesc:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: User ID of the guest
+        joined_at:
+          type: string
+          format: date-time
+          description: Timestamp when the guest joined the session
+      required:
+        - user_id
+        - joined_at
+
+    GuestSessionDesc:
+      type: object
+      properties:
+        joined_at:
+          type: string
+          format: date-time
+          description: Timestamp when the user joined the session as a guest
+        session:
+          $ref: "#/components/schemas/SessionDesc"
+      required:
+        - joined_at
+        - session
 
     JoinRequestEvent:
       type: object
