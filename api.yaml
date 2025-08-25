@@ -826,6 +826,9 @@ components:
         id:
           type: string
           description: Machine ID
+        friendly_name:
+          type: string
+          description: Human-friendly machine name
         name:
           type: string
           description: Machine name
