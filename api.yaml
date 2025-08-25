@@ -849,6 +849,9 @@ components:
         memory_mib:
           type: integer
           description: Memory size in MiB
+        arch:
+          type: string
+          description: CPU architecture
         gpu_count:
           type: integer
           description: Number of GPUs
@@ -882,6 +885,11 @@ components:
         href:
           type: string
           description: Image reference URL
+        arch:
+          type: array
+          items:
+            type: string
+          description: Supported CPU architectures
         cloud:
           type: string
           description: Cloud provider
