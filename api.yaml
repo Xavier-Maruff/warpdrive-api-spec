@@ -31,8 +31,12 @@ paths:
                   token:
                     type: string
                     description: JWT token for authentication
+                  expires_in:
+                    type: integer
+                    description: Token expiration time in seconds
                 required:
                   - token
+                  - expires_in
         "401":
           description: Invalid API key
           content:
