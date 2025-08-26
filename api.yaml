@@ -596,6 +596,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  client_region:
+                    type: string
+                    description: Region of the client making the request
                   results:
                     type: array
                     items:
