@@ -463,6 +463,81 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /user/api_keys:
+    get:
+      summary: List API keys for the current user
+      description: List all API keys for the current user
+      responses:
+        "200":
+          description: Successfully retrieved API keys
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_keys:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ApiKeyDesc"
+                required:
+                  - api_keys
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a new API key
+      description: Create a new API key for the current user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                expires_in_days:
+                  type: integer
+                  description: Number of days until the API key expires (optional)
+      responses:
+        "201":
+          description: API key created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_key:
+                    type: string
+                    description: The generated API key
+                required:
+                  - api_key
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /search/machines:
     get:
       summary: Search for available machine types
@@ -912,6 +987,30 @@ components:
         - os
         - href
         - cloud
+
+    ApiKeyDesc:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the API key
+        created_at:
+          type: number
+          format: float
+          description: Timestamp when the API key was created (Unix seconds)
+        expires_at:
+          type: number
+          format: float
+          description: Timestamp when the API key expires (Unix seconds)
+        last_used_at:
+          type: number
+          format: float
+          description: Timestamp when the API key was last used (Unix seconds)
+      required:
+        - id
+        - created_at
+        - expires_at
+        - last_used_at
 
     Error:
       type: object
