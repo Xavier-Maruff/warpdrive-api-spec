@@ -879,6 +879,9 @@ components:
         friendly_name:
           type: string
           description: User-friendly image name
+        featured:
+          type: boolean
+          description: Whether the image is featured
         description:
           type: string
           description: Image description
