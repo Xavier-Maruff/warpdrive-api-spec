@@ -585,6 +585,21 @@ paths:
     get:
       summary: Get user usage data
       description: Get usage data rollups for the current user
+      parameters:
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+          description: Start date filter (Unix timestamp)
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+          description: End date filter (Unix timestamp)
       responses:
         "200":
           description: Successfully retrieved usage data
