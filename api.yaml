@@ -1006,6 +1006,12 @@ components:
           type: number
           format: float
           description: Timestamp when the API key was last used (Unix seconds)
+        last_used_by_ip:
+          type: string
+          description: IP address from which the API key was last used
+        last_used_in_region:
+          type: string
+          description: Region from which the API key was last used
       required:
         - id
         - created_at
