@@ -627,6 +627,52 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /user/invoices/line_items:
+    get:
+      summary: Get user invoice line items
+      description: Get invoice line items for the current user
+      parameters:
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+          description: Start date filter (Unix timestamp)
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+          description: End date filter (Unix timestamp)
+      responses:
+        "200":
+          description: Successfully retrieved invoice line items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  line_items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/InvoiceLineItem"
+                required:
+                  - line_items
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /search/machines:
     get:
       summary: Search for available machine types
@@ -1133,6 +1179,48 @@ components:
         - region
         - metric
         - value
+
+    InvoiceLineItem:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: User ID for this line item
+        day:
+          type: number
+          format: float
+          description: Day timestamp (Unix seconds at start of day)
+        period_start:
+          type: number
+          format: float
+          description: Period start timestamp (Unix seconds)
+        period_end:
+          type: number
+          format: float
+          description: Period end timestamp (Unix seconds)
+        metric:
+          type: string
+          description: Billing metric type
+        unit:
+          type: string
+          description: Unit of measurement
+        quantity:
+          type: number
+          format: float
+          description: Quantity for this line item
+        amount_usd:
+          type: number
+          format: float
+          description: Amount in USD for this line item
+      required:
+        - user_id
+        - day
+        - period_start
+        - period_end
+        - metric
+        - unit
+        - quantity
+        - amount_usd
 
     Error:
       type: object
