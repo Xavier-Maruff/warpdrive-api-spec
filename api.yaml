@@ -880,6 +880,42 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /price_estimate:
+    post:
+      summary: Get price estimate for a machine
+      description: Get price estimate for a specific machine in a region with a metric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PriceEstimateRequest"
+      responses:
+        "200":
+          description: Successfully retrieved price estimate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Price"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1221,6 +1257,44 @@ components:
         - unit
         - quantity
         - amount_usd
+
+    PriceEstimateRequest:
+      type: object
+      properties:
+        machine_id:
+          type: string
+          description: Machine configuration ID
+        region:
+          type: string
+          description: Region for price estimate (optional)
+        metric:
+          type: string
+          description: Pricing metric
+      required:
+        - machine_id
+        - metric
+
+    Price:
+      type: object
+      properties:
+        machine_id:
+          type: string
+          description: Machine configuration ID
+        region:
+          type: string
+          description: Region for this price
+        usd_per_unit:
+          type: number
+          format: float
+          description: Price in USD per unit
+        metric:
+          type: string
+          description: Pricing metric
+      required:
+        - machine_id
+        - region
+        - usd_per_unit
+        - metric
 
     Error:
       type: object
