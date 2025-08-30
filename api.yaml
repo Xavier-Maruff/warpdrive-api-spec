@@ -631,6 +631,21 @@ paths:
     get:
       summary: Get user invoices
       description: Get all invoices for the current user
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+          description: Maximum results to return
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+          description: Results offset for pagination
       responses:
         "200":
           description: Successfully retrieved invoices
