@@ -1353,6 +1353,39 @@ components:
     Invoice:
       type: object
       properties:
+        local:
+          $ref: "#/components/schemas/LocalInvoice"
+          description: Local invoice details
+        stripe:
+          $ref: "#/components/schemas/StripeInvoice"
+          description: Stripe invoice details
+      required:
+        - local
+
+    StripeInvoice:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Stripe invoice ID
+        hosted_invoice_url:
+          type: string
+          description: URL to view the invoice
+        invoice_pdf:
+          type: string
+          description: URL to download the invoice as a PDF
+        paid:
+          type: boolean
+          description: Whether the invoice has been paid
+      required:
+        - invoice_id
+        - hosted_invoice_url
+        - pdf_url
+        - paid
+
+    LocalInvoice:
+      type: object
+      properties:
         id:
           type: integer
           description: Unique identifier for the invoice
