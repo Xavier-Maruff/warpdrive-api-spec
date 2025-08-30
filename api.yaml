@@ -627,10 +627,41 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /user/invoices:
+    get:
+      summary: Get user invoices
+      description: Get all invoices for the current user
+      responses:
+        "200":
+          description: Successfully retrieved invoices
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoices:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Invoice"
+                required:
+                  - invoices
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /user/invoices/line_items:
     get:
       summary: Get user invoice line items
-      description: Get invoice line items for the current user
+      description: Get historical and pending invoice line items for the current user
       parameters:
         - name: start_date
           in: query
@@ -1195,7 +1226,8 @@ components:
         day:
           type: number
           format: float
-          description: Day timestamp (Unix seconds at start of day)
+          description: Day timestamp (Unix seconds at start of day, nullable)
+          nullable: true
         machine_id:
           type: string
           description: Machine ID for this usage data
@@ -1250,19 +1282,20 @@ components:
           description: Amount in USD for this line item
         machine_id:
           type: string
-          description: Machine ID associated with this line item (if applicable)
+          description: Machine ID associated with this line item
         region:
           type: string
-          description: Region associated with this line item (if applicable)
+          description: Region associated with this line item
       required:
         - user_id
-        - day
         - period_start
         - period_end
         - metric
         - unit
         - quantity
         - amount_usd
+        - machine_id
+        - region
 
     PriceEstimateRequest:
       type: object
@@ -1301,6 +1334,49 @@ components:
         - region
         - usd_per_unit
         - metric
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the invoice
+        user_id:
+          type: string
+          description: User ID for this invoice
+        period_start:
+          type: number
+          format: float
+          description: Period start timestamp (Unix seconds)
+        period_end:
+          type: number
+          format: float
+          description: Period end timestamp (Unix seconds)
+        total_usd:
+          type: number
+          format: float
+          description: Total amount in USD for this invoice
+        created_at:
+          type: number
+          format: float
+          description: Invoice creation timestamp (Unix seconds)
+        paid:
+          type: boolean
+          description: Whether the invoice has been paid
+        line_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceLineItem"
+          description: Line items for this invoice
+      required:
+        - id
+        - user_id
+        - period_start
+        - period_end
+        - total_usd
+        - created_at
+        - paid
+        - line_items
 
     Error:
       type: object
