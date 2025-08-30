@@ -1248,6 +1248,12 @@ components:
           type: number
           format: float
           description: Amount in USD for this line item
+        machine_id:
+          type: string
+          description: Machine ID associated with this line item (if applicable)
+        region:
+          type: string
+          description: Region associated with this line item (if applicable)
       required:
         - user_id
         - day
