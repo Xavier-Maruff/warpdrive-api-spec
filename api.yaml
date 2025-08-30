@@ -1377,11 +1377,16 @@ components:
         paid:
           type: boolean
           description: Whether the invoice has been paid
+        due_date:
+          type: number
+          format: float
+          description: Invoice due date timestamp
       required:
         - invoice_id
         - hosted_invoice_url
         - pdf_url
         - paid
+        - due_date
 
     LocalInvoice:
       type: object
