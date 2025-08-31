@@ -719,6 +719,74 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /user/address:
+    get:
+      summary: Get user address
+      description: Get the current user's address information for tax compliance
+      responses:
+        "200":
+          description: Successfully retrieved user address
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    $ref: "#/components/schemas/Address"
+                required:
+                  - address
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Update user address
+      description: Update the current user's address information for tax compliance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: Address updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    $ref: "#/components/schemas/Address"
+                required:
+                  - address
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /search/machines:
     get:
       summary: Search for available machine types
@@ -1430,6 +1498,19 @@ components:
         - created_at
         - paid
         - line_items
+
+    Address:
+      type: object
+      properties:
+        postal_code:
+          type: string
+          nullable: true
+          description: Postal code for tax compliance
+        country:
+          type: string
+          nullable: true
+          description: Country for tax compliance
+      description: Address information for tax compliance
 
     Error:
       type: object
