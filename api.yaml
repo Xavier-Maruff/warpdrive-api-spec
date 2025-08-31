@@ -762,12 +762,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  address:
-                    $ref: "#/components/schemas/Address"
-                required:
-                  - address
+                $ref: "#/components/schemas/Address"
         "400":
           description: Bad request
           content:
