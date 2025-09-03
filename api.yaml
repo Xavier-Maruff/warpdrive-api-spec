@@ -1106,9 +1106,13 @@ components:
           type: string
           description: Name of the image
         started_at:
-          type: string
-          format: date-time
+          type: number
+          format: float
           description: Timestamp of session creation
+        ended_at:
+          type: number
+          format: float
+          description: Timestamp when the session ended (nullable)
         status:
           type: string
           description: Current status of the session
