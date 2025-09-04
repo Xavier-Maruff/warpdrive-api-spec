@@ -1109,6 +1109,27 @@ components:
         image_name:
           type: string
           description: Name of the image
+        instance_type_name:
+          type: string
+          description: Machine type name
+        instance_type_vcpus:
+          type: integer
+          description: Number of virtual CPUs
+        instance_type_memory_mib:
+          type: integer
+          description: Memory size in MiB
+        instance_type_gpu_count:
+          type: integer
+          description: Number of GPUs
+        instance_type_gpu_model:
+          type: string
+          description: GPU model
+        arch:
+          type: string
+          description: CPU architecture
+        cloud:
+          type: string
+          description: Cloud provider
         disk_size:
           type: number
           format: float
@@ -1131,6 +1152,10 @@ components:
         - machine_id
         - image_id
         - image_name
+        - instance_type_name
+        - instance_type_vcpus
+        - instance_type_memory_mib
+        - instance_type_gpu_count
         - started_at
         - status
 
