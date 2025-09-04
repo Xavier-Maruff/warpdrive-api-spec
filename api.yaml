@@ -1166,8 +1166,8 @@ components:
           type: string
           description: User ID of the guest
         joined_at:
-          type: string
-          format: date-time
+          type: number
+          format: float
           description: Timestamp when the guest joined the session
       required:
         - user_id
