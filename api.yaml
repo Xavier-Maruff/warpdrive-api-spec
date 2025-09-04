@@ -1071,6 +1071,10 @@ components:
         machine_id:
           type: string
           description: Machine configuration ID
+        disk_size:
+          type: number
+          format: float
+          description: Size of the attached disk
         started_at:
           type: string
           format: date-time
@@ -1105,6 +1109,10 @@ components:
         image_name:
           type: string
           description: Name of the image
+        disk_size:
+          type: number
+          format: float
+          description: Size of the attached disk
         started_at:
           type: number
           format: float
