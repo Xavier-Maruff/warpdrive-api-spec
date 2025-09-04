@@ -289,9 +289,12 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/GuestDesc"
+                type: object
+                properties:
+                  guests:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GuestDesc"
         "401":
           description: Unauthorized
           content:
