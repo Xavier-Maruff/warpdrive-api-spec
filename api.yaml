@@ -272,6 +272,39 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /sessions/{session_id}/terminate:
+    post:
+      summary: Terminate a session
+      description: Terminate a running session by its ID
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the session
+      responses:
+        "200":
+          description: Session terminated successfully
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /sessions/{session_id}/guests:
     get:
       summary: List all guests in a session
